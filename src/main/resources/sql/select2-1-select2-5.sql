@@ -11,15 +11,13 @@ WHERE c.surname ILIKE '%ov';
 -- Find the name of the most expensive item for purchase,
 -- in the name of which there is the letter 'V', but not the first and not the last one.
 SELECT
-  products.name,
-  MAX(products.purchase_price)
+  products.name
 FROM (SELECT *
       FROM products p
       WHERE p.name ~* '^([^v])+([v]).+([^v])$') AS products
 WHERE products.purchase_price = (SELECT MAX(purchase_price)
                           FROM products
-                          WHERE name ~* '^([^v])+([v]).+([^v])$')
-GROUP BY products.name;
+                          WHERE name ~* '^([^v])+([v]).+([^v])$');
 
 --Find the names of buyers whose names contain the letter 'V' and no more than two times
 --For a regular expression, thanks to @kortov
