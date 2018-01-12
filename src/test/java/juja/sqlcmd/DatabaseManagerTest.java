@@ -145,7 +145,6 @@ public class DatabaseManagerTest {
         boolean actual = databaseManager.insert(tableName, dataSet);
         executeQuery(String.format("DROP TABLE IF EXISTS %s", tableName));
         assertTrue(actual);
-
     }
 
     @Test
@@ -153,7 +152,6 @@ public class DatabaseManagerTest {
         DataSet dataSet = createDataSet(new String[]{"1", "name1", "25"});
         databaseManager.connect(dbName, USER, PASSWORD);
         assertFalse(databaseManager.insert("noTable", dataSet));
-
     }
 
     @Test
@@ -166,7 +164,6 @@ public class DatabaseManagerTest {
         boolean actual = databaseManager.insert(tableName, dataSet);
         executeQuery(String.format("DROP TABLE IF EXISTS %s", tableName));
         assertFalse(actual);
-
     }
 
     @Test
