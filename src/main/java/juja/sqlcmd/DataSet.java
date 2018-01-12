@@ -27,9 +27,13 @@ public class DataSet {
     public String toString() {
         StringBuilder result = new StringBuilder();
         for (String field : row) {
-            result.append(field).append(",");
+            result.append(wrapInQuotes(field)).append(",");
         }
         return result.toString().substring(0,result.length()-1);
+    }
+
+    private String wrapInQuotes(String field) {
+        return "'".concat(field).concat("'");
     }
 
     @Override
