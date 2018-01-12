@@ -24,6 +24,14 @@ public class DataSet {
         }
     }
 
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+        for (String field : row) {
+            result.append(field).append(",");
+        }
+        return result.toString().substring(0,result.length()-1);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
