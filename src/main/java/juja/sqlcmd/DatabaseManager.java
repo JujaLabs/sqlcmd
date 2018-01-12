@@ -32,7 +32,8 @@ public class DatabaseManager {
      */
     public boolean insert(String tableName, DataSet dataset) {
         try (Statement statement = connection.createStatement()) {
-            return statement.execute(String.format("INSERT INTO %s VALUES(%s)", tableName, dataset.toString()));
+            statement.execute(String.format("INSERT INTO %s VALUES(%s)", tableName, dataset.toString()));
+            return true;
         } catch (SQLException e) {
             System.out.println("Failed insert operation!" + e.getMessage());
             return false;

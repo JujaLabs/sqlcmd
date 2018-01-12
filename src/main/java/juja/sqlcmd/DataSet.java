@@ -29,7 +29,7 @@ public class DataSet {
         for (String field : row) {
             result.append(wrapInQuotes(field)).append(",");
         }
-        return result.toString().substring(0,result.length()-1);
+        return result.toString().substring(0, result.length() - 1);
     }
 
     private String wrapInQuotes(String field) {

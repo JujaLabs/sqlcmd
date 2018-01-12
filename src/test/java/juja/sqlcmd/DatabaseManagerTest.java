@@ -14,6 +14,7 @@ import java.util.Date;
 
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class DatabaseManagerTest {
@@ -127,6 +128,56 @@ public class DatabaseManagerTest {
         DataSet[] actual = databaseManager.getTableData(tableName);
         executeQuery(String.format("DROP TABLE IF EXISTS %s", tableName));
         assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testDataSetToString() {
+        DataSet dataSet = createDataSet(new String[]{"1", "name1", "25"});
+        assertEquals("'1','name1','25'", dataSet.toString());
+    }
+
+    @Test
+    public void testInsertWhenSuccess() throws SQLException {
+        DataSet dataSet = createDataSet(new String[]{"111", "someName", "25"});
+        String tableName = "table_name";
+        createTableWithData(tableName);
+        databaseManager.connect(dbName, USER, PASSWORD);
+        boolean actual = databaseManager.insert(tableName, dataSet);
+        executeQuery(String.format("DROP TABLE IF EXISTS %s", tableName));
+        assertTrue(actual);
+
+    }
+
+    @Test
+    public void testInsertWhenNoTable() {
+        DataSet dataSet = createDataSet(new String[]{"1", "name1", "25"});
+        databaseManager.connect(dbName, USER, PASSWORD);
+        assertFalse(databaseManager.insert("noTable", dataSet));
+
+    }
+
+    @Test
+    public void testInsertWhenExtraColumnsCount() throws SQLException {
+
+        DataSet dataSet = createDataSet(new String[]{"1", "name1", "25", "extra"});
+        String tableName = "table_name";
+        createTableWithData(tableName);
+        databaseManager.connect(dbName, USER, PASSWORD);
+        boolean actual = databaseManager.insert(tableName, dataSet);
+        executeQuery(String.format("DROP TABLE IF EXISTS %s", tableName));
+        assertFalse(actual);
+
+    }
+
+    @Test
+    public void testInsertWhenTypeMismatch() throws SQLException {
+        DataSet dataSet = createDataSet(new String[]{"typeMismatch", "name1", "25"});
+        String tableName = "table_name";
+        createTableWithData(tableName);
+        databaseManager.connect(dbName, USER, PASSWORD);
+        boolean actual = databaseManager.insert(tableName, dataSet);
+        executeQuery(String.format("DROP TABLE IF EXISTS %s", tableName));
+        assertFalse(actual);
     }
 
     private DataSet createDataSet(String[] row) {
