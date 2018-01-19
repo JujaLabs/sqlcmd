@@ -102,7 +102,7 @@ public class DatabaseManagerTest {
     }
 
     @Test
-    public void getTableDataWhenWrongTableNameReturnsEmptyArray() throws SQLException {
+    public void getTableDataWhenTableNotExistsReturnsEmptyArray() throws SQLException {
         databaseManager.connect(TEST_DB_NAME, DB_USER, DB_USER_PASSWORD);
         DataSet[] expected = new DataSet[]{};
         assertArrayEquals(expected, databaseManager.getTableData("WrongTableName"));
@@ -136,12 +136,22 @@ public class DatabaseManagerTest {
     }
 
     @Test
-    public void insertWhenInvalidTableNameReturnsFalse() throws SQLException {
+    public void insertWhenTypeMismatchParameterReturnsFalse() throws SQLException {
+        databaseManager.connect(TEST_DB_NAME, DB_USER, DB_USER_PASSWORD);
+        DataSet tableRow = new DataSet(2);
+        tableRow.insertValue(0, "NAN");
+        tableRow.insertValue(1, "name1");
+        createTestTableWithIdAndName(TEST_TABLE_NAME);
+        assertFalse(databaseManager.insert(TEST_TABLE_NAME, tableRow));
+    }
+
+    @Test
+    public void insertWhenTableNotExistsReturnsFalse() throws SQLException {
         databaseManager.connect(TEST_DB_NAME, DB_USER, DB_USER_PASSWORD);
         DataSet tableRow = new DataSet(2);
         tableRow.insertValue(0, "1");
         tableRow.insertValue(1, "name1");
-        assertFalse(databaseManager.insert("not_existed_table", tableRow));
+        assertFalse(databaseManager.insert("WrongTableName", tableRow));
     }
 
     @Test
@@ -150,9 +160,32 @@ public class DatabaseManagerTest {
         DataSet tableRow = new DataSet(3);
         tableRow.insertValue(0, "1");
         tableRow.insertValue(1, "name1");
-        tableRow.insertValue(2, "name1");
+        tableRow.insertValue(2, "name2");
         createTestTableWithIdAndName(TEST_TABLE_NAME);
         assertFalse(databaseManager.insert(TEST_TABLE_NAME, tableRow));
+    }
+
+    @Test
+    public void deleteWhenTableNotExistsReturnsFalse() {
+        databaseManager.connect(TEST_DB_NAME, DB_USER, DB_USER_PASSWORD);
+        assertFalse(databaseManager.delete("WrongTableName", 1));
+    }
+
+    @Test
+    public void deleteWhenValidDataReturnsTrue() throws SQLException {
+        databaseManager.connect(TEST_DB_NAME, DB_USER, DB_USER_PASSWORD);
+        createTestTableWithIdAndName(TEST_TABLE_NAME);
+        executeSqlQuery("INSERT INTO " + TEST_TABLE_NAME + " VALUES(1,'name1')");
+        executeSqlQuery("INSERT INTO " + TEST_TABLE_NAME + " VALUES(2,'name2')");
+        assertTrue(databaseManager.delete(TEST_TABLE_NAME, 1));
+    }
+
+    @Test
+    public void deleteWhenNotExistedIdReturnsFalse() throws SQLException {
+        databaseManager.connect(TEST_DB_NAME, DB_USER, DB_USER_PASSWORD);
+        createTestTableWithIdAndName(TEST_TABLE_NAME);
+        executeSqlQuery("INSERT INTO " + TEST_TABLE_NAME + " VALUES(1,'name1')");
+        assertFalse(databaseManager.delete(TEST_TABLE_NAME, 2));
     }
 
     private void createTestTableWithIdAndName(String tableName) throws SQLException {

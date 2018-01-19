@@ -52,7 +52,7 @@ public class DatabaseManager {
     public boolean insert(String tableName, DataSet dataset) {
         String insertQueryValues = dataSetCsv(dataset);
         String sqlQuery = String.format("INSERT INTO %s VALUES(%s)", tableName, insertQueryValues);
-        try(Statement statement = connection.createStatement()){
+        try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(sqlQuery);
             return true;
         } catch (SQLException e) {
@@ -70,7 +70,17 @@ public class DatabaseManager {
                     .append(",");
         }
         int lastCommaIndex = csvBuilder.lastIndexOf(",");
-        return csvBuilder.substring(0,lastCommaIndex);
+        return csvBuilder.substring(0, lastCommaIndex);
+    }
+
+    public boolean delete(String tableName, int id) {
+        String sqlQuery = String.format("DELETE FROM %s WHERE id=%s", tableName, id);
+        try (Statement statement = connection.createStatement()) {
+            int rowsAffected = statement.executeUpdate(sqlQuery);
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            return false;
+        }
     }
 
     public void close() throws SQLException {
