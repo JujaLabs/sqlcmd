@@ -26,16 +26,16 @@ public class DatabaseManager {
         }
     }
 
-    /**
+    /*
      * Method for inserting data into a table.
      * If successful, the method returns true, else return false
      */
     public boolean insert(String tableName, DataSet dataset) {
         try (Statement statement = connection.createStatement()) {
-            statement.execute(String.format("INSERT INTO %s VALUES(%s)", tableName, dataset.toString()));
+            statement.execute(String.format("INSERT INTO %s VALUES(%s)", tableName, dataset.row()));
             return true;
         } catch (SQLException e) {
-            System.out.println("Failed insert operation!" + e.getMessage());
+            System.out.println("Failed insert operation! " + e.getMessage());
             return false;
         }
     }
