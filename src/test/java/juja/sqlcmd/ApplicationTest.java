@@ -17,9 +17,11 @@ import static org.junit.Assert.assertEquals;
 public class ApplicationTest {
     private static final String LINE_SEPARATOR = System.lineSeparator();
     private static final String DB_CONNECTION_URL = "jdbc:postgresql://127.0.0.1:5432/";
+    private static final String DB_ADMIN_USER = "postgres";
+    private static final String DB_ADMIN_PASSWORD = "postgres";
     private static final String DB_NAME = "sqlcmd";
-    private static final String DB_USER = "sqlcmd";
-    private static final String DB_USER_PASSWORD = "sqlcmd";
+    private static final String DB_USER = "postgres";
+    private static final String DB_USER_PASSWORD = "postgres";
     private static final String TEST_DB_NAME = "testdatabase";
 
 
@@ -33,9 +35,9 @@ public class ApplicationTest {
 
     @BeforeClass
     public static void setConnection() throws SQLException {
-        connection = DriverManager.getConnection(DB_CONNECTION_URL + DB_NAME, DB_USER, DB_USER_PASSWORD);
+        connection = DriverManager.getConnection(DB_CONNECTION_URL + DB_NAME, DB_ADMIN_USER, DB_ADMIN_PASSWORD);
         executeSqlQuery("DROP DATABASE IF EXISTS " + TEST_DB_NAME);
-        executeSqlQuery("CREATE DATABASE " + TEST_DB_NAME);
+        executeSqlQuery("CREATE DATABASE " + TEST_DB_NAME+" OWNER ="+DB_USER);
         connection.close();
         connection = DriverManager.getConnection(DB_CONNECTION_URL + TEST_DB_NAME, DB_USER, DB_USER_PASSWORD);
         executeSqlQuery("DROP DATABASE IF EXISTS " + DB_NAME);
