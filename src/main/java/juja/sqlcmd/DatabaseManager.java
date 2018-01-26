@@ -40,6 +40,20 @@ public class DatabaseManager {
         }
     }
 
+    /*
+     * Method for deleting data from a table.
+     * If successful, the method returns true, else return false
+     */
+    public boolean delete(String tableName, int id) {
+        try (Statement statement = connection.createStatement()) {
+            statement.execute(String.format("DELETE FROM %s WHERE id = %s", tableName, id));
+            return true;
+        } catch (SQLException e) {
+            System.out.println("Failed delete operation!" + e.getMessage());
+            return false;
+        }
+    }
+
     public String[] getTableNames() {
         String[] tableNames = new String[0];
         try {
