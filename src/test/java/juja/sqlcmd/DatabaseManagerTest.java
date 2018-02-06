@@ -143,25 +143,10 @@ public class DatabaseManagerTest {
     }
 
     @Test
-    public void testDeleteWhenValidData() throws SQLException {
-        createTableWithData(TABLE_NAME);
-        databaseManager.connect(dbName, USER, PASSWORD);
-        boolean actual = databaseManager.delete(TABLE_NAME, 1);
-        executeQuery(String.format("DROP TABLE IF EXISTS %s", TABLE_NAME));
-        assertTrue(actual);
-    }
-
-    @Test
     public void testInsertWhenTableNotExists() {
         DataSet dataSet = createDataSet(new String[]{"1", "name1", "25"});
         databaseManager.connect(dbName, USER, PASSWORD);
         assertFalse(databaseManager.insert("noTable", dataSet));
-    }
-
-    @Test
-    public void testDeleteWhenTableNotExists() {
-        databaseManager.connect(dbName, USER, PASSWORD);
-        assertFalse(databaseManager.delete("noTable", 1));
     }
 
     @Test
@@ -179,6 +164,30 @@ public class DatabaseManagerTest {
         createTableWithData(TABLE_NAME);
         databaseManager.connect(dbName, USER, PASSWORD);
         boolean actual = databaseManager.insert(TABLE_NAME, dataSet);
+        assertFalse(actual);
+    }
+
+    @Test
+    public void testDeleteWhenValidData() throws SQLException {
+        createTableWithData(TABLE_NAME);
+        databaseManager.connect(dbName, USER, PASSWORD);
+        boolean actual = databaseManager.delete(TABLE_NAME, 1);
+        executeQuery(String.format("DROP TABLE IF EXISTS %s", TABLE_NAME));
+        assertTrue(actual);
+    }
+
+    @Test
+    public void testDeleteWhenTableNotExists() {
+        databaseManager.connect(dbName, USER, PASSWORD);
+        assertFalse(databaseManager.delete("noTable", 1));
+    }
+
+    @Test
+    public void testDeleteWhenIdNotExists() throws SQLException {
+        createTableWithData(TABLE_NAME);
+        databaseManager.connect(dbName, USER, PASSWORD);
+        boolean actual = databaseManager.delete(TABLE_NAME, -1);
+        executeQuery(String.format("DROP TABLE IF EXISTS %s", TABLE_NAME));
         assertFalse(actual);
     }
 

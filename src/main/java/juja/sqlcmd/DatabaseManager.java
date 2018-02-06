@@ -46,8 +46,7 @@ public class DatabaseManager {
      */
     public boolean delete(String tableName, int id) {
         try (Statement statement = connection.createStatement()) {
-            statement.execute(String.format("DELETE FROM %s WHERE id = %s", tableName, id));
-            return true;
+            return statement.executeUpdate(String.format("DELETE FROM %s WHERE id = %s", tableName, id)) > 0;
         } catch (SQLException e) {
             System.out.println("Failed delete operation!" + e.getMessage());
             return false;
