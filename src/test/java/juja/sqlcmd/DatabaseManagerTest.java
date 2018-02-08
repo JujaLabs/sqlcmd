@@ -167,6 +167,30 @@ public class DatabaseManagerTest {
         assertFalse(actual);
     }
 
+    @Test
+    public void testDeleteWhenValidData() throws SQLException {
+        createTableWithData(TABLE_NAME);
+        databaseManager.connect(dbName, USER, PASSWORD);
+        boolean actual = databaseManager.delete(TABLE_NAME, 1);
+        executeQuery(String.format("DROP TABLE IF EXISTS %s", TABLE_NAME));
+        assertTrue(actual);
+    }
+
+    @Test
+    public void testDeleteWhenTableNotExists() {
+        databaseManager.connect(dbName, USER, PASSWORD);
+        assertFalse(databaseManager.delete("noTable", 1));
+    }
+
+    @Test
+    public void testDeleteWhenIdNotExists() throws SQLException {
+        createTableWithData(TABLE_NAME);
+        databaseManager.connect(dbName, USER, PASSWORD);
+        boolean actual = databaseManager.delete(TABLE_NAME, -1);
+        executeQuery(String.format("DROP TABLE IF EXISTS %s", TABLE_NAME));
+        assertFalse(actual);
+    }
+
     private DataSet createDataSet(String[] row) {
         DataSet oneRow = new DataSet(row.length);
         for (int i = 0; i < row.length; i++) {
