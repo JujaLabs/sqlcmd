@@ -187,7 +187,6 @@ public class DatabaseManagerTest {
         createTableWithData(TABLE_NAME);
         databaseManager.connect(NAME_DB_TEST, LOGIN_FOR_TEST, PASSWORD_FOR_TEST);
         boolean actual = databaseManager.delete(TABLE_NAME, 1);
-        executeQuery(String.format("DROP TABLE IF EXISTS %s", TABLE_NAME));
         assertTrue(actual);
     }
 
@@ -202,7 +201,6 @@ public class DatabaseManagerTest {
         createTableWithData(TABLE_NAME);
         databaseManager.connect(NAME_DB_TEST, LOGIN_FOR_TEST, PASSWORD_FOR_TEST);
         boolean actual = databaseManager.delete(TABLE_NAME, -1);
-        executeQuery(String.format("DROP TABLE IF EXISTS %s", TABLE_NAME));
         assertFalse(actual);
     }
 
