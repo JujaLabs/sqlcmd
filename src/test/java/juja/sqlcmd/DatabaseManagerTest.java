@@ -10,35 +10,34 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Date;
 
-import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class DatabaseManagerTest {
-    private static final String DB_NAME = "sqlcmd";
-    private static final String USER = "sqlcmd";
-    private static final String PASSWORD = "sqlcmd";
+    private static final String NAME_DB_TEST = "sqlcmd_test";
+    private static final String LOGIN_FOR_TEST = "sqlcmd";
+    private static final String PASSWORD_FOR_TEST = "sqlcmd";
+    private static final String LOGIN_FOR_SU = "postgres";
+    private static final String PASSWORD_FOR_SU = "postgres";
     private static final String TEST_DB_CONNECTION_URL = "jdbc:postgresql://localhost:5432/";
     private static final String TABLE_NAME = "table_name";
 
     private static Connection connection;
-    private static String dbName;
 
     private DatabaseManager databaseManager;
 
     @BeforeClass
     public static void createConnection() throws SQLException, ClassNotFoundException {
         Class.forName("org.postgresql.Driver");
-        connection = DriverManager.getConnection(TEST_DB_CONNECTION_URL, USER, PASSWORD);
-        dbName = new Date().toString();
+        connection = DriverManager.getConnection(TEST_DB_CONNECTION_URL, LOGIN_FOR_SU, PASSWORD_FOR_SU);
         try (Statement statement = connection.createStatement()) {
-            statement.execute(String.format("CREATE DATABASE \"%s\" ", dbName));
+            statement.execute(String.format("CREATE DATABASE \"%s\" OWNER \"%s\"", NAME_DB_TEST, LOGIN_FOR_TEST));
         }
         connection.close();
-        connection = DriverManager.getConnection(TEST_DB_CONNECTION_URL + dbName, USER, PASSWORD);
+        connection = DriverManager.getConnection(TEST_DB_CONNECTION_URL + NAME_DB_TEST, LOGIN_FOR_TEST, PASSWORD_FOR_TEST);
     }
 
     @Before
@@ -46,29 +45,45 @@ public class DatabaseManagerTest {
         databaseManager = new DatabaseManager();
     }
 
-    @Test
-    public void testConnectionWithCorrectParameters() {
-        assertTrue(databaseManager.connect(DB_NAME, USER, PASSWORD));
+    @After
+    public void closeConnection() throws SQLException {
+        executeQuery(String.format("DROP TABLE IF EXISTS %s", TABLE_NAME));
+        databaseManager.close();
+    }
+
+    @AfterClass
+    public static void dropTestDB() throws SQLException {
+        connection.close();
+        connection = DriverManager.getConnection(TEST_DB_CONNECTION_URL, LOGIN_FOR_SU, PASSWORD_FOR_SU);
+        try (Statement statement = connection.createStatement()) {
+            statement.execute(String.format("DROP DATABASE IF EXISTS \"%s\" ", NAME_DB_TEST));
+        }
+        connection.close();
     }
 
     @Test
-    public void testConnectionIfDatabaseNotExists() {
-        assertFalse(databaseManager.connect("noDatabase", USER, PASSWORD));
+    public void testConnectionWithValidParameters() {
+        assertTrue(databaseManager.connect(NAME_DB_TEST, LOGIN_FOR_TEST, PASSWORD_FOR_TEST));
     }
 
     @Test
-    public void testConnectionIfWrongUser() {
-        assertFalse(databaseManager.connect(DB_NAME, "wrongUser", PASSWORD));
+    public void testConnectionWhenDatabaseNotExists() {
+        assertFalse(databaseManager.connect("noDatabase", LOGIN_FOR_TEST, PASSWORD_FOR_TEST));
     }
 
     @Test
-    public void testConnectionIfWrongPassword() {
-        assertFalse(databaseManager.connect(DB_NAME, USER, "wrongPassword"));
+    public void testConnectionWhenWrongUser() {
+        assertFalse(databaseManager.connect(NAME_DB_TEST, "wrongUser", PASSWORD_FOR_TEST));
+    }
+
+    @Test
+    public void testConnectionWhenWrongPassword() {
+        assertFalse(databaseManager.connect(NAME_DB_TEST, LOGIN_FOR_TEST, "wrongPassword"));
     }
 
     @Test
     public void testGetTablesNameWhenDbHasNotTables() {
-        databaseManager.connect(dbName, USER, PASSWORD);
+        databaseManager.connect(NAME_DB_TEST, LOGIN_FOR_TEST, PASSWORD_FOR_TEST);
         assertArrayEquals(new String[]{}, databaseManager.getTableNames());
     }
 
@@ -77,7 +92,7 @@ public class DatabaseManagerTest {
         String firstTableName = "first_table";
         String secondTableName = "second_table";
         createTwoTablesInDatabase(firstTableName, secondTableName);
-        databaseManager.connect(dbName, USER, PASSWORD);
+        databaseManager.connect(NAME_DB_TEST, LOGIN_FOR_TEST, PASSWORD_FOR_TEST);
         String[] expected = {firstTableName, secondTableName};
         String[] actual = databaseManager.getTableNames();
         executeQuery(String.format("DROP TABLE IF EXISTS %s", firstTableName));
@@ -93,7 +108,7 @@ public class DatabaseManagerTest {
 
     @Test
     public void testGetTableDataWhenTableNotExists() {
-        databaseManager.connect(dbName, USER, PASSWORD);
+        databaseManager.connect(NAME_DB_TEST, LOGIN_FOR_TEST, PASSWORD_FOR_TEST);
         DataSet[] expected = new DataSet[0];
         DataSet[] actual = databaseManager.getTableData("tableNotExist");
         assertArrayEquals(expected, actual);
@@ -109,7 +124,7 @@ public class DatabaseManagerTest {
     @Test
     public void testGetTableDataWhenEmptyTable() throws SQLException {
         executeQuery(String.format("CREATE TABLE %s (id SERIAL PRIMARY KEY)", TABLE_NAME));
-        databaseManager.connect(dbName, USER, PASSWORD);
+        databaseManager.connect(NAME_DB_TEST, LOGIN_FOR_TEST, PASSWORD_FOR_TEST);
         DataSet[] expected = new DataSet[0];
         DataSet[] actual = databaseManager.getTableData(TABLE_NAME);
         assertArrayEquals(expected, actual);
@@ -121,7 +136,7 @@ public class DatabaseManagerTest {
         DataSet firstRow = createDataSet(new String[]{"1", "name1", "25"});
         DataSet secondRow = createDataSet(new String[]{"2", "name2", "35"});
         DataSet thirdRow = createDataSet(new String[]{"3", "name3", "45"});
-        databaseManager.connect(dbName, USER, PASSWORD);
+        databaseManager.connect(NAME_DB_TEST, LOGIN_FOR_TEST, PASSWORD_FOR_TEST);
         DataSet[] expected = new DataSet[]{firstRow, secondRow, thirdRow};
         DataSet[] actual = databaseManager.getTableData(TABLE_NAME);
         assertArrayEquals(expected, actual);
@@ -137,7 +152,7 @@ public class DatabaseManagerTest {
     public void testInsertWhenValidData() throws SQLException {
         DataSet dataSet = createDataSet(new String[]{"111", "someName", "25"});
         createTableWithData(TABLE_NAME);
-        databaseManager.connect(dbName, USER, PASSWORD);
+        databaseManager.connect(NAME_DB_TEST, LOGIN_FOR_TEST, PASSWORD_FOR_TEST);
         boolean actual = databaseManager.insert(TABLE_NAME, dataSet);
         assertTrue(actual);
     }
@@ -145,7 +160,7 @@ public class DatabaseManagerTest {
     @Test
     public void testInsertWhenTableNotExists() {
         DataSet dataSet = createDataSet(new String[]{"1", "name1", "25"});
-        databaseManager.connect(dbName, USER, PASSWORD);
+        databaseManager.connect(NAME_DB_TEST, LOGIN_FOR_TEST, PASSWORD_FOR_TEST);
         assertFalse(databaseManager.insert("noTable", dataSet));
     }
 
@@ -153,7 +168,7 @@ public class DatabaseManagerTest {
     public void testInsertWhenDataSetHasExtraColumns() throws SQLException {
         DataSet dataSet = createDataSet(new String[]{"1", "name1", "25", "extra"});
         createTableWithData(TABLE_NAME);
-        databaseManager.connect(dbName, USER, PASSWORD);
+        databaseManager.connect(NAME_DB_TEST, LOGIN_FOR_TEST, PASSWORD_FOR_TEST);
         boolean actual = databaseManager.insert(TABLE_NAME, dataSet);
         assertFalse(actual);
     }
@@ -162,7 +177,7 @@ public class DatabaseManagerTest {
     public void testInsertWhenTypeMismatch() throws SQLException {
         DataSet dataSet = createDataSet(new String[]{"typeMismatch", "name1", "25"});
         createTableWithData(TABLE_NAME);
-        databaseManager.connect(dbName, USER, PASSWORD);
+        databaseManager.connect(NAME_DB_TEST, LOGIN_FOR_TEST, PASSWORD_FOR_TEST);
         boolean actual = databaseManager.insert(TABLE_NAME, dataSet);
         assertFalse(actual);
     }
@@ -170,24 +185,22 @@ public class DatabaseManagerTest {
     @Test
     public void testDeleteWhenValidData() throws SQLException {
         createTableWithData(TABLE_NAME);
-        databaseManager.connect(dbName, USER, PASSWORD);
+        databaseManager.connect(NAME_DB_TEST, LOGIN_FOR_TEST, PASSWORD_FOR_TEST);
         boolean actual = databaseManager.delete(TABLE_NAME, 1);
-        executeQuery(String.format("DROP TABLE IF EXISTS %s", TABLE_NAME));
         assertTrue(actual);
     }
 
     @Test
     public void testDeleteWhenTableNotExists() {
-        databaseManager.connect(dbName, USER, PASSWORD);
+        databaseManager.connect(NAME_DB_TEST, LOGIN_FOR_TEST, PASSWORD_FOR_TEST);
         assertFalse(databaseManager.delete("noTable", 1));
     }
 
     @Test
     public void testDeleteWhenIdNotExists() throws SQLException {
         createTableWithData(TABLE_NAME);
-        databaseManager.connect(dbName, USER, PASSWORD);
+        databaseManager.connect(NAME_DB_TEST, LOGIN_FOR_TEST, PASSWORD_FOR_TEST);
         boolean actual = databaseManager.delete(TABLE_NAME, -1);
-        executeQuery(String.format("DROP TABLE IF EXISTS %s", TABLE_NAME));
         assertFalse(actual);
     }
 
@@ -197,22 +210,6 @@ public class DatabaseManagerTest {
             oneRow.add(i, row[i]);
         }
         return oneRow;
-    }
-
-    @After
-    public void closeConnection() throws SQLException {
-        executeQuery(String.format("DROP TABLE IF EXISTS %s", TABLE_NAME));
-        databaseManager.close();
-    }
-
-    @AfterClass
-    public static void dropTestDB() throws SQLException {
-        connection.close();
-        connection = DriverManager.getConnection(TEST_DB_CONNECTION_URL, USER, PASSWORD);
-        try (Statement statement = connection.createStatement()) {
-            statement.execute(String.format("DROP DATABASE IF EXISTS \"%s\" ", dbName));
-        }
-        connection.close();
     }
 
     private void createTableWithData(String tableName) throws SQLException {
