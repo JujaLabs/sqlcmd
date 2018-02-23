@@ -1,12 +1,17 @@
 package juja.sqlcmd;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import static org.junit.Assert.assertEquals;
 
@@ -16,11 +21,28 @@ public class ApplicationTest {
 
     private final PrintStream originalOut = System.out;
     private final PrintStream originalErr = System.err;
+
+    private static final String LOGIN_FOR_SU = "postgres";
+    private static final String PASSWORD_FOR_SU = "postgres";
+    private static final String LOGIN_FOR_TEST = "sqlcmd";
+    private static final String NAME_DB_TEST = "sqlcmd";
+    private static final String TEST_DB_CONNECTION_URL = "jdbc:postgresql://localhost:5432/";
     private static final String LINE_SEPARATOR = System.lineSeparator();
 
+    private static Connection connection;
+
+
+    @BeforeClass
+    public static void createConnection() throws SQLException, ClassNotFoundException {
+        Class.forName("org.postgresql.Driver");
+        connection = DriverManager.getConnection(TEST_DB_CONNECTION_URL, LOGIN_FOR_SU, PASSWORD_FOR_SU);
+        try (Statement statement = connection.createStatement()) {
+            statement.execute(String.format("CREATE DATABASE \"%s\" OWNER \"%s\"", NAME_DB_TEST, LOGIN_FOR_TEST));
+        }
+    }
 
     @Before
-    public void setUpStreams() throws SQLException {
+    public void setUpStreams() {
         System.setOut(new PrintStream(outContent));
         System.setErr(new PrintStream(errContent));
     }
@@ -29,6 +51,13 @@ public class ApplicationTest {
     public void cleanUpStreams() {
         System.setOut(originalOut);
         System.setErr(originalErr);
+    }
+    @AfterClass
+    public static void dropTestDB() throws SQLException {
+        try (Statement statement = connection.createStatement()) {
+            statement.execute(String.format("DROP DATABASE IF EXISTS \"%s\" ", NAME_DB_TEST));
+        }
+        connection.close();
     }
 
     @Test

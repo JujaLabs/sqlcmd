@@ -1,0 +1,15 @@
+language: java
+
+jdk:
+- oraclejdk8
+
+addons:
+  postgresql: "9.6"
+
+services:
+  - postgresql
+
+before_script:
+    - sudo mv -f $TRAVIS_BUILD_DIR/target/test-classes/config/pg_hba.conf /etc/postgresql/9.6/main/
+    - sudo service postgresql restart
+    - psql -U postgres -c "CREATE USER sqlcmd PASSWORD 'sqlcmd';"
