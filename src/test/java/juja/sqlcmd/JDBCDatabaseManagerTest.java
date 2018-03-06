@@ -33,7 +33,7 @@ public class JDBCDatabaseManagerTest extends DatabaseManagerTest {
 
     @After
     public void closeConnection() throws SQLException {
-        deleteTablesInDatabase(TABLE_NAME);
+        deleteTablesFromDatabase(TABLE_NAME);
         databaseManager.close();
     }
 
@@ -73,7 +73,7 @@ public class JDBCDatabaseManagerTest extends DatabaseManagerTest {
     }
 
     @Override
-    void deleteTablesInDatabase(String tableName) throws SQLException {
+    void deleteTablesFromDatabase(String tableName) throws SQLException {
         executeQuery(String.format("DROP TABLE IF EXISTS %s", TABLE_NAME));
     }
 

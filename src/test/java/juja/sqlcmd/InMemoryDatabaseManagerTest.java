@@ -6,7 +6,7 @@ public class InMemoryDatabaseManagerTest extends DatabaseManagerTest {
 
     @After
     public void closeConnection() {
-        deleteTablesInDatabase(TABLE_NAME);
+        deleteTablesFromDatabase(TABLE_NAME);
         databaseManager.close();
     }
 
@@ -21,7 +21,7 @@ public class InMemoryDatabaseManagerTest extends DatabaseManagerTest {
     }
 
     @Override
-    void deleteTablesInDatabase(String tableName) {
+    void deleteTablesFromDatabase(String tableName) {
         ((InMemoryDatabaseManager) databaseManager).deleteTable(tableName);
     }
 

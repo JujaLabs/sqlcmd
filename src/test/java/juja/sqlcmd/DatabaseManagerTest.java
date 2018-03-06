@@ -16,10 +16,11 @@ public abstract class DatabaseManagerTest {
     private static final String LOGIN_FOR_TEST = "sqlcmd";
     private static final String PASSWORD_FOR_TEST = "sqlcmd";
 
-    DatabaseManager databaseManager;
+    static final String TABLE_NAME = "table_name";
 
     static Connection connection;
-    static final String TABLE_NAME = "table_name";
+
+    DatabaseManager databaseManager;
 
     @Before
     public void setup() {
@@ -32,7 +33,7 @@ public abstract class DatabaseManagerTest {
 
     abstract void createTableWithData(String tableName) throws SQLException;
 
-    abstract void deleteTablesInDatabase(String tableName) throws SQLException;
+    abstract void deleteTablesFromDatabase(String tableName) throws SQLException;
 
     abstract DataSet createDataSet(String[] row);
 

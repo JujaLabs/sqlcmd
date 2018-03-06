@@ -22,16 +22,17 @@ public class InMemoryDatabaseManager implements DatabaseManager {
     @Override
     public boolean insert(String tableName, DataSet dataset) {
         DataSet[] newDataSets = tables.get(tableName);
-        if ((newDataSets != null)) {
-            if ((newDataSets.length == 0)
-                    || ((newDataSets[0].row().split(",").length >= dataset.row().split(",").length))) {
-                newDataSets = Arrays.copyOf(newDataSets, newDataSets.length + 1);
-                newDataSets[newDataSets.length - 1] = dataset;
-                tables.put(tableName, newDataSets);
-                return true;
-            }
+        if (newDataSets != null && isDataSetsValid(dataset, newDataSets)) {
+            newDataSets = Arrays.copyOf(newDataSets, newDataSets.length + 1);
+            newDataSets[newDataSets.length - 1] = dataset;
+            tables.put(tableName, newDataSets);
+            return true;
         }
         return false;
+    }
+
+    private boolean isDataSetsValid(DataSet dataset, DataSet[] newDataSets) {
+        return newDataSets.length == 0 || newDataSets[0].length() >= dataset.length();
     }
 
     @Override
@@ -41,18 +42,15 @@ public class InMemoryDatabaseManager implements DatabaseManager {
 
     @Override
     public boolean delete(String tableName, int id) {
-        for (Map.Entry<String, DataSet[]> entry : tables.entrySet()) {
-            if (entry.getKey().equals(tableName)) {
-                DataSet[] dataSets = entry.getValue();
-                int index = 0;
-                for (DataSet dataSet : dataSets) {
-                    if (dataSet.row().split(",")[0].equals(String.valueOf("'" + id + "'"))) {
-                        System.arraycopy(dataSets, index + 1, dataSets, index, dataSets.length - 1 - index);
-                        DataSet[] newDataSet = Arrays.copyOf(dataSets, dataSets.length - 1);
-                        tables.put(tableName, newDataSet);
-                        return tables.get(tableName).length == newDataSet.length;
-                    }
-                    index++;
+        if (tables.containsKey(tableName)) {
+            DataSet[] dataSets = tables.get(tableName);
+            for (int index = 0; index < dataSets.length; index++) {
+                String currentId = dataSets[index].row().split(",")[0];
+                if (currentId.equals("'" + id + "'")) {
+                    System.arraycopy(dataSets, index + 1, dataSets, index, dataSets.length - 1 - index);
+                    DataSet[] newDataSet = Arrays.copyOf(dataSets, dataSets.length - 1);
+                    tables.put(tableName, newDataSet);
+                    return tables.get(tableName).length == newDataSet.length;
                 }
             }
         }
@@ -62,7 +60,7 @@ public class InMemoryDatabaseManager implements DatabaseManager {
     @Override
     public String[] getTableNames() {
         if (connected) {
-            return (tables.keySet().size() == 0) ? new String[]{} : tables.keySet().toArray(new String[0]);
+            return (tables.isEmpty()) ? new String[]{} : tables.keySet().toArray(new String[0]);
         } else {
             return new String[]{};
         }
