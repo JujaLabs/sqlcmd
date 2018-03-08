@@ -14,6 +14,10 @@ public class DataSet {
         this.row = new String[length];
     }
 
+    public int length() {
+        return row.length;
+    }
+
     public void add(int columnIndex, String value) {
         if ((columnIndex >= 0) && (columnIndex < row.length)) {
             this.row[columnIndex] = value;
