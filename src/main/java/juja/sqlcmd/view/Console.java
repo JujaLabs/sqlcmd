@@ -1,14 +1,29 @@
 package juja.sqlcmd.view;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Scanner;
 
 public class Console implements View {
 
-    private static Scanner scanner = new Scanner(System.in);
+    private Scanner scanner;
+    private OutputStream outputStream;
+    private InputStream inputStream;
+
+    public Console(OutputStream printStream, InputStream inputStream) {
+        this.outputStream = printStream;
+        this.inputStream = inputStream;
+        this.scanner = new Scanner(inputStream);
+    }
 
     @Override
     public void write(String message) {
-        System.out.println(message);
+        try {
+            outputStream.write((message + System.lineSeparator()).getBytes());
+        } catch (IOException e) {
+            System.err.println("Error. " + e.getMessage());
+        }
     }
 
     @Override
