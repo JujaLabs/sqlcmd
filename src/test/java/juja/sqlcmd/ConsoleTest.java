@@ -15,6 +15,8 @@ import static org.junit.Assert.assertEquals;
 
 public class ConsoleTest {
 
+    private static final String LINE_SEPARATOR = System.lineSeparator();
+
     private static ByteArrayOutputStream out;
     private static View view;
 
@@ -26,7 +28,7 @@ public class ConsoleTest {
     }
 
     @After
-    public void tail() {
+    public void tearDown() {
         out.reset();
     }
 
@@ -35,7 +37,7 @@ public class ConsoleTest {
         String message = "Test Line";
         view.write(message);
         String actual = new String(out.toByteArray());
-        assertEquals(message + System.lineSeparator(), actual);
+        assertEquals(message + LINE_SEPARATOR, actual);
     }
 
     @Test
@@ -43,14 +45,14 @@ public class ConsoleTest {
         String message = "";
         view.write(message);
         String actual = new String(out.toByteArray());
-        assertEquals(message + System.lineSeparator(), actual);
+        assertEquals(message + LINE_SEPARATOR, actual);
     }
 
     @Test
-    public void testWriteWhenEmptyLine2() {
+    public void testWhenMethodWriteGetsNull() {
         view.write(null);
         String actual = new String(out.toByteArray());
-        assertEquals(null + System.lineSeparator(), actual);
+        assertEquals(null + LINE_SEPARATOR, actual);
     }
 
     @Test
@@ -73,7 +75,6 @@ public class ConsoleTest {
         view = new Console(out, new ByteArrayInputStream(message.getBytes()));
         view.write(view.read());
         String actual = new String(out.toByteArray());
-        assertEquals(message + System.lineSeparator(), actual);
+        assertEquals(message + LINE_SEPARATOR, actual);
     }
-
 }

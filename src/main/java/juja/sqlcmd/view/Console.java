@@ -10,8 +10,8 @@ public class Console implements View {
     private Scanner scanner;
     private OutputStream outputStream;
 
-    public Console(OutputStream printStream, InputStream inputStream) {
-        this.outputStream = printStream;
+    public Console(OutputStream outputStream, InputStream inputStream) {
+        this.outputStream = outputStream;
         this.scanner = new Scanner(inputStream);
     }
 
