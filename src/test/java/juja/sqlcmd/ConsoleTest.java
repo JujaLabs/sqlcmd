@@ -52,7 +52,7 @@ public class ConsoleTest {
     public void testWhenMethodWriteGetsNull() {
         view.write(null);
         String actual = new String(out.toByteArray());
-        assertEquals(null + LINE_SEPARATOR, actual);
+        assertEquals("", actual);
     }
 
     @Test
