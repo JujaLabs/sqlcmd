@@ -22,6 +22,7 @@ public class Console implements View {
     @Override
     public void write(String message) {
         try {
+            message += "\n";
             outputStream.write(message.getBytes());
         } catch (IOException e) {
             throw new RuntimeException("Something goes wrong with write method... Reason:" + e.getMessage());

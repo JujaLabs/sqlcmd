@@ -112,6 +112,11 @@ public class JdbcDatabaseManager implements DatabaseManager {
         return tableData;
     }
 
+    @Override
+    public boolean hasConnection() {
+        return connection != null;
+    }
+
     private int numberOfEntries(String tableName) throws SQLException {
         String sqlQuery = String.format("SELECT COUNT(*) as RECORDS FROM %s", tableName);
         try (Statement statement = connection.createStatement();

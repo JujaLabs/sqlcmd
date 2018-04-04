@@ -65,6 +65,11 @@ public class InMemoryDatabaseManager implements DatabaseManager {
         //NOP
     }
 
+    @Override
+    public boolean hasConnection() {
+        return true;
+    }
+
     private Table tableByName(String tableName) {
         for (Table currentTable : tables) {
             if (currentTable.getTableName().equals(tableName)) {

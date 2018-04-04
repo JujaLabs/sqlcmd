@@ -16,4 +16,6 @@ public interface DatabaseManager {
     boolean update(String tableName, int id);
 
     void close() throws SQLException;
+
+    boolean hasConnection();
 }

@@ -12,7 +12,20 @@ public class MainController {
         this.databaseManager = databaseManager;
     }
 
-    public void run(){
-
+    public void run() {
+        CommandHandler handler = new CommandHandler(databaseManager, view);
+        view.write("Welcome to SqlCmd application!\n" +
+                "Please enter help to see a list of commands");
+        view.write("-----");
+        while (true) {
+            String command = view.read();
+            handler.handleCommand(command);
+            if (command.toLowerCase().equals("exit")) {
+                view.write("Bye!");
+                break;
+            }
+            view.write("-----");
+            view.write("Please enter next command");
+        }
     }
 }
