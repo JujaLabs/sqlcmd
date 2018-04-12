@@ -17,12 +17,13 @@ public class JDBCDatabaseManager implements DatabaseManager {
 
     @Override
     public boolean connect(String database, String user, String password) {
-        String dbConnectionUrl = "jdbc:postgresql://" + SERVER + ":" + PORT + "/" + database;
+        String dbConnectionUrl = "jdbc:postgresql://" + SERVER + ":" + PORT + "/" + database + "?loggerLevel=OFF";
         try {
             Class.forName("org.postgresql.Driver");
             connection = DriverManager.getConnection(dbConnectionUrl, user, password);
             return true;
         } catch (ClassNotFoundException | SQLException e) {
+            System.out.println("ERROR");
             return false;
         }
     }
@@ -145,6 +146,16 @@ public class JDBCDatabaseManager implements DatabaseManager {
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+        }
+    }
+
+    @Override
+    public boolean isConnect() {
+        try {
+            return connection != null && !connection.isClosed();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 }

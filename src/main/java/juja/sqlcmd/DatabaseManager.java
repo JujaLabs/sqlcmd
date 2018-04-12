@@ -14,6 +14,7 @@ public interface DatabaseManager {
      * If successful, the method returns true, else return false
      */
     boolean update(String tableName, int id);
+
     /*
      * Method for deleting data from a table.
      * If successful, the method returns true, else return false
@@ -25,4 +26,6 @@ public interface DatabaseManager {
     DataSet[] getTableData(String tableName);
 
     void close();
+
+    boolean isConnect();
 }
