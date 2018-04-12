@@ -77,11 +77,16 @@ public class InMemoryDatabaseManager implements DatabaseManager {
         connected = false;
     }
 
-    public void createTable(String tableName) {
+    @Override
+    public boolean isConnect() {
+        return true;
+    }
+
+    void createTable(String tableName) {
         tables.put(tableName, new DataSet[0]);
     }
 
-    public void deleteTable(String tableName) {
+    void deleteTable(String tableName) {
         tables.remove(tableName);
     }
 }

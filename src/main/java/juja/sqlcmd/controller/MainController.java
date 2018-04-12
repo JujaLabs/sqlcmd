@@ -14,6 +14,13 @@ public class MainController {
     }
 
     public void run() {
-
+        CommandHandler handler = new CommandHandler(databaseManager, view);
+        view.write("***********************************************************************************************");
+        view.write("Enter connect or \"help\" to see a list of possible commands");
+        view.write("***********************************************************************************************");
+        while (true) {
+            String command = view.read();
+            handler.handleCommand(command);
+        }
     }
 }
